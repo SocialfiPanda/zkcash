@@ -9,6 +9,7 @@ use ark_bn254::Fr;
 
 // Simple wrapper for hashing a single input
 pub fn hash_1(input: &[u8; 32]) -> Result<[u8; 32], ProgramError> {
+    // Create a Poseidon instance for width 1
     let mut poseidon = Poseidon::<Fr>::new_circom(1)
         .map_err(|_| ProgramError::Custom(1))?;
     
@@ -18,6 +19,7 @@ pub fn hash_1(input: &[u8; 32]) -> Result<[u8; 32], ProgramError> {
 
 // Implementation for hashing two inputs
 pub fn hash_2(left: &[u8; 32], right: &[u8; 32]) -> Result<[u8; 32], ProgramError> {
+    // Create a Poseidon instance for width 2
     let mut poseidon = Poseidon::<Fr>::new_circom(2)
         .map_err(|_| ProgramError::Custom(1))?;
     
@@ -59,6 +61,7 @@ pub fn compute_merkle_root(
 pub enum PoseidonError {
     InvalidInputLength,
     VecToArray,
+    PoseidonHashError,
 }
 
 impl From<PoseidonError> for ProgramError {
