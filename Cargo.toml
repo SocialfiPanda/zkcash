@@ -1,0 +1,31 @@
+[package]
+name = "solana-privacy-protocol"
+version = "0.1.0"
+edition = "2021"
+description = "A privacy protocol for Solana"
+license = "MIT"
+rust-version = "1.79.0"
+
+[features]
+no-entrypoint = []
+
+[dependencies]
+solana-program = "1.16.0"
+borsh = "0.10.3"
+light-poseidon = "0.3.0"
+ark-bn254 = { version = "0.5.0", features = [] }
+ark-ff = { version = "0.5.0", features = [] }
+solana-bn254 = "2.2.2"
+sha2 = "0.10.0"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
+[profile.release.build-override]
+opt-level = 3
+incremental = false
+codegen-units = 1
