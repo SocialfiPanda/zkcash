@@ -1,6 +1,6 @@
 [package]
-name = "solana-privacy-protocol"
-version = "0.1.0"
+name = "zkcash"
+version = "0.0.1"
 edition = "2021"
 description = "A privacy protocol for Solana"
 license = "MIT"
@@ -17,6 +17,16 @@ ark-bn254 = { version = "0.5.0", features = [] }
 ark-ff = { version = "0.5.0", features = [] }
 solana-bn254 = "2.2.2"
 sha2 = "0.10.0"
+once_cell = "1.19.0"
+
+[[test]]
+name = "zkcash_tests"
+path = "tests/lib.rs"
+
+[dev-dependencies]
+solana-program-test = "2.2.1"
+solana-sdk = "2.2.1"
+tokio = { version = "1.14", features = ["full"] }
 
 [lib]
 crate-type = ["cdylib", "lib"]
