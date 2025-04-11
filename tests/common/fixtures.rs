@@ -1,6 +1,9 @@
 use solana_program::pubkey::Pubkey;
-use solana_sdk::signature::Keypair;
+use solana_sdk::signature::{Keypair, Signer};
 use std::str::FromStr;
+use std::sync::Once;
+use std::sync::Mutex;
+use lazy_static::lazy_static;
 
 /// Test keypair for signing transactions
 pub const TEST_KEYPAIR_BYTES: [u8; 64] = [
@@ -62,19 +65,56 @@ pub const MOCK_PROOF: [u8; 256] = [
     241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 0,
 ];
 
-/// Get the test keypair
+// Create a consistent program keypair for testing
+lazy_static! {
+    static ref PROGRAM_KEYPAIR: Mutex<Keypair> = Mutex::new(Keypair::new());
+}
+
+/// Get a consistent test keypair for the payer
 pub fn get_test_keypair() -> Keypair {
-    Keypair::from_bytes(&TEST_KEYPAIR_BYTES).unwrap()
+    // Generate a consistent keypair using a fixed seed
+    let bytes = [
+        157, 12, 63, 94, 109, 133, 95, 152, 240, 33, 168, 95, 177, 253, 20, 215,
+        87, 135, 23, 10, 211, 131, 109, 26, 160, 27, 33, 131, 31, 85, 185, 17,
+        179, 242, 216, 130, 183, 154, 0, 248, 193, 153, 111, 111, 129, 146, 128, 157,
+        61, 152, 22, 147, 11, 130, 213, 186, 194, 0, 129, 142, 54, 111, 116, 75,
+    ];
+    
+    // Attempt to create a keypair from the fixed bytes
+    match Keypair::from_bytes(&bytes) {
+        Ok(keypair) => keypair,
+        Err(_) => {
+            // Fall back to a new random keypair if the bytes are invalid
+            Keypair::new()
+        }
+    }
 }
 
 /// Get the program ID
 pub fn get_program_id() -> Pubkey {
-    Pubkey::from_str("ZKCashProgramPubkey11111111111111111111111").unwrap()
+    // Return a consistent program ID for all tests
+    PROGRAM_KEYPAIR.lock().unwrap().pubkey()
 }
 
 /// Get mock proof as vector
 pub fn get_mock_proof() -> Vec<u8> {
-    MOCK_PROOF.to_vec()
+    // Create a simple mock proof for testing
+    vec![0u8; 256] // 256 zero bytes as a placeholder proof
+}
+
+/// Find pool PDA
+pub fn find_pool_pda(program_id: &Pubkey) -> (Pubkey, u8) {
+    Pubkey::find_program_address(&[b"privacy_pool"], program_id)
+}
+
+/// Find merkle tree PDA
+pub fn find_merkle_tree_pda(program_id: &Pubkey) -> (Pubkey, u8) {
+    Pubkey::find_program_address(&[b"merkle_tree"], program_id)
+}
+
+/// Find nullifier PDA
+pub fn find_nullifier_pda(program_id: &Pubkey, nullifier_hash: &[u8; 32]) -> (Pubkey, u8) {
+    Pubkey::find_program_address(&[b"nullifier", nullifier_hash], program_id)
 }
 
 /// Generate a sample merkle path for testing
@@ -84,7 +124,7 @@ pub fn generate_sample_merkle_path(depth: usize) -> (Vec<[u8; 32]>, Vec<u8>) {
     
     // Fill indices with bytes where each bit represents a direction
     // For simplicity, we'll use alternating left-right pattern
-    for i in 0..((depth + 7) / 8) {
+    for _i in 0..((depth + 7) / 8) {
         indices.push(0b10101010); // Alternating 1s and 0s
     }
     

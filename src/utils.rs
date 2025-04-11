@@ -6,6 +6,10 @@ use solana_program::{
 pub struct Utils;
 
 impl Utils {
+    pub fn new() -> Self {
+        Self
+    }
+    
     pub fn derive_commitment(secret: &[u8; 32], nullifier: &[u8; 32]) -> Result<[u8; 32], ProgramError> {
         crate::poseidon::hash_2(secret, nullifier)
     }
@@ -16,6 +20,18 @@ impl Utils {
     
     pub fn bytes_to_pubkey(bytes: &[u8; 32]) -> Pubkey {
         Pubkey::new_from_array(*bytes)
+    }
+    
+    pub fn find_pool_pda(&self, program_id: &Pubkey) -> (Pubkey, u8) {
+        find_pool_pda(program_id)
+    }
+    
+    pub fn find_merkle_tree_pda(&self, program_id: &Pubkey) -> (Pubkey, u8) {
+        find_merkle_tree_pda(program_id)
+    }
+    
+    pub fn find_nullifier_pda(&self, program_id: &Pubkey, nullifier: &[u8; 32]) -> (Pubkey, u8) {
+        find_nullifier_pda(program_id, nullifier)
     }
 }
 
